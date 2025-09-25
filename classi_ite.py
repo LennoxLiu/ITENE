@@ -287,62 +287,9 @@ def main():
             print("TE", condiMI[-1])
             print("ground_truth", ground_truth[-1])
 
-            # # ite
-            # vae_net = VAE()
-            # diff_ite = []
-            # modelA = Class_Net(input_size=3, hidden_size=130, std=0.08)
-            # modelB = Class_Net(input_size=2, hidden_size=100, std=0.02)
-            # optimizerA = torch.optim.Adam(modelA.parameters(), lr=1e-3)
-            # optimizerB = torch.optim.Adam(modelB.parameters(), lr=1e-3)
-            # for j in range(repo):
-            #     vae_data, Jacobian_joint = data_gen_zbar(rho_data, size, vae_net)
-            #     # jacobian matrix is equal to Jacobian_joint together with Jacobian_joint by mar_index
-
-            #     miA, gradsA, indexA, t_indexA, m_indexA = mi(
-            #         vae_data, size, train_size, modelA, optimizerA, repi, tau, input_size=3
-            #     )
-            #     J_reorderA = torch.index_select(Jacobian_joint, 1, torch.LongTensor(m_indexA))
-            #     J_Am1 = torch.index_select(J_reorderA, 1, torch.LongTensor(t_indexA))
-            #     J_Aj1 = torch.index_select(Jacobian_joint, 1, torch.LongTensor(t_indexA))
-            #     Jacobian_jm = torch.cat((J_Aj1, J_Am1), 1)
-            #     Jacobian_A = torch.index_select(Jacobian_jm, 1, torch.LongTensor(indexA))
-
-            #     miB, gradsB, indexB, t_indexB, m_indexB = mi(
-            #         vae_data, size, train_size, modelB, optimizerB, repi, tau, input_size=2
-            #     )
-            #     J_reorderB = torch.index_select(Jacobian_joint, 1, torch.LongTensor(m_indexB))
-            #     J_Bm1 = torch.index_select(J_reorderB, 1, torch.LongTensor(t_indexB))
-            #     J_Bj1 = torch.index_select(Jacobian_joint, 1, torch.LongTensor(t_indexB))
-            #     Jacobian_jmB = torch.cat((J_Bj1, J_Bm1), 1)
-            #     Jacobian_B = torch.index_select(Jacobian_jmB, 1, torch.LongTensor(indexB))
-
-            #     # Guard against None grads; create zeros with correct batch dimension
-            #     if gradsA is None or isinstance(gradsA, (int, float)):
-            #         grads_j_A = torch.zeros((Jacobian_A.shape[1], 1), dtype=torch.float32, device=Jacobian_A.device)
-            #     else:
-            #         grads_j_A = gradsA[:, -1].reshape(-1, 1)
-            #     if gradsB is None or isinstance(gradsB, (int, float)):
-            #         grads_j_B = torch.zeros((Jacobian_B.shape[1], 1), dtype=torch.float32, device=Jacobian_B.device)
-            #     else:
-            #         grads_j_B = gradsB[:, -1].reshape(-1, 1)
-
-            #     # calculate the gradient wrt the weights of network vae
-            #     grads_A = torch.mm(torch.t(grads_j_A), torch.t(Jacobian_A))
-            #     grads_B = torch.mm(torch.t(grads_j_B), torch.t(Jacobian_B))
-
-            #     diff_grads = grads_A - grads_B
-            #     with torch.no_grad():
-            #         vae_net.fc1.weight -= alpha * torch.t(diff_grads)
-
-            #     diff_ite.append(miA - miB)
-
-            # result_ITE.append(ma(diff_ite)[-1] * 1.4427)
-            # print("result_ITE", result_ITE)
+            
 
         total_te[i, :] = condiMI
-        # total_ite[i, :] = result_ITE
-        # final_result_STE = [a_i - b_i for a_i, b_i in zip(condiMI, result_ITE)]
-        # total_ste[i, :] = final_result_STE
 
     plt.figure(1)
     max_te = np.amax(total_te, axis=0)
@@ -350,25 +297,10 @@ def main():
     total = [sum(x) for x in zip(max_te, min_te)]
     mid_te = [x / 2 for x in total]
 
-    # max_ite = np.amax(total_ite, axis=0)
-    # min_ite = np.min(total_ite, axis=0)
-    # totali = [sum(x) for x in zip(max_ite, min_ite)]
-    # mid_ite = [x / 2 for x in totali]
-
-    # max_ste = np.amax(total_ste, axis=0)
-    # min_ste = np.min(total_ste, axis=0)
-    # totals = [sum(x) for x in zip(max_ste, min_ste)]
-    # mid_ste = [x / 2 for x in totals]
-
+  
     plt.plot(thresh_vec, mid_te, color='orange', alpha=.9, label='TE')
     plt.fill_between(thresh_vec, max_te, min_te, color='orange', alpha=.9)
 
-    # plt.plot(thresh_vec, mid_ite, color='cyan', alpha=.9, label='ITE')
-    # plt.fill_between(thresh_vec, max_ite, min_ite, color='cyan', alpha=.9)
-
-    # plt.plot(thresh_vec, mid_ste, color='magenta', alpha=.9, label='STE')
-    # plt.fill_between(thresh_vec, max_ste, min_ste, color='magenta', alpha=.9)
-    # plt.plot(thresh_vec, final_result_STE, marker='*', color='m', label='STE')
     plt.plot(thresh_vec, ground_truth, 'b--', label='Ground Truth of TE')
 
     plt.xlabel(r"threshold $\lambda$")
@@ -376,10 +308,7 @@ def main():
     plt.savefig("comte_variance.pdf")
 
     plt.figure(1)
-    # plt.plot(thresh_vec,ground_truth)
-    # plt.plot(thresh_vec, result_ITE, 'r', label='ITE')
     plt.plot(thresh_vec, condiMI, marker='^', color='g', label='TE')
-    # plt.plot(thresh_vec, np.array(condiMI) - np.array(result_ITE), marker='*', color='m', label='STE')
     plt.plot(thresh_vec, ground_truth, 'b--', label='Ground Truth')
 
     plt.xlim(-3, 3)
